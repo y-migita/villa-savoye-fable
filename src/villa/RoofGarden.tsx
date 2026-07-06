@@ -9,16 +9,17 @@ import { arcWallGeo } from './util'
 
 const H_SOL = SOL_TOP - ROOF_FL // 2.75
 
-/** 白い立上りパラペット */
+/** 白い立上りパラペット(箱の上端 6.9m と揃える) */
 function Guard({ x0, x1, z0, z1 }: { x0: number; x1: number; z0: number; z1: number }) {
+  const h = 0.35
   return (
     <mesh
       material={white}
-      position={[(x0 + x1) / 2, ROOF_FL + 0.475, (z0 + z1) / 2]}
+      position={[(x0 + x1) / 2, ROOF_FL + h / 2, (z0 + z1) / 2]}
       castShadow
       receiveShadow
     >
-      <boxGeometry args={[Math.max(x1 - x0, 0.12), 0.95, Math.max(z1 - z0, 0.12)]} />
+      <boxGeometry args={[Math.max(x1 - x0, 0.12), h, Math.max(z1 - z0, 0.12)]} />
     </mesh>
   )
 }
