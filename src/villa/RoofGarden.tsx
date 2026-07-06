@@ -89,6 +89,11 @@ export function RoofGarden() {
       <Guard x0={RAMP_X1} x1={RAMP_X1 + 0.12} z0={SLOT_Z0} z1={TERR_Z0} />
       <Guard x0={RAMP_X1} x1={TERR_X1} z0={TERR_Z0 - 0.12} z1={TERR_Z0} />
 
+      {/* 煙突(北西の小さな円筒) */}
+      <mesh material={white} position={[-7.6, ROOF_FL + 0.7, -8.4]} castShadow>
+        <cylinderGeometry args={[0.26, 0.26, 1.4, 20]} />
+      </mesh>
+
       {/* 植栽・点景 */}
       <Planter x={8.6} z={-7.6} w={3.4} d={1.1} />
       <Planter x={-8.9} z={6.2} w={1.1} d={4.2} dark />

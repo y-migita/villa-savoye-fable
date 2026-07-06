@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { Canvas, useThree } from '@react-three/fiber'
+import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { CameraControls } from '@react-three/drei'
 import type CameraControlsImpl from 'camera-controls'
 import * as THREE from 'three'
@@ -30,19 +30,27 @@ function CameraRig({ view }: { view: ViewKey }) {
 }
 
 /** 断面表示(スロープを通る南北方向の切断)— 建物のマテリアルのみに適用 */
+const sectionPlanes = [new THREE.Plane(new THREE.Vector3(1, 0, 0), 2.15)]
+
 function SectionPlane({ enabled }: { enabled: boolean }) {
   const gl = useThree((s) => s.gl)
-  useEffect(() => {
+  // エフェクトのタイミングに依存すると描画エンジン側の再コンパイルと
+  // 競合することがあるため、毎フレーム目標状態を保証する
+  useFrame(() => {
     gl.localClippingEnabled = true
-    const plane = new THREE.Plane(new THREE.Vector3(1, 0, 0), 2.15)
-    for (const m of buildingMaterials) {
-      m.clippingPlanes = enabled ? [plane] : null
-      m.needsUpdate = true
+    const want = enabled ? sectionPlanes : null
+    if (buildingMaterials[0].clippingPlanes !== want) {
+      for (const m of buildingMaterials) {
+        m.clippingPlanes = want
+        m.needsUpdate = true
+      }
     }
+  })
+  useEffect(() => {
     return () => {
       for (const m of buildingMaterials) m.clippingPlanes = null
     }
-  }, [gl, enabled])
+  }, [])
   return null
 }
 
@@ -73,7 +81,7 @@ export default function App() {
       >
         <color attach="background" args={['#cfe0eb']} />
         <fog attach="fog" args={['#dce7ee', 75, 210]} />
-        <hemisphereLight args={['#e6f0f7', '#a8aa9e', 0.85]} />
+        <hemisphereLight args={['#e6f0f7', '#b0b0a8', 0.85]} />
         <directionalLight
           position={[-26, 36, -26]}
           intensity={2.4}
@@ -88,7 +96,7 @@ export default function App() {
           shadow-bias={-0.0003}
           shadow-normalBias={0.03}
         />
-        <directionalLight position={[20, 14, 22]} intensity={0.55} />
+        <directionalLight position={[20, 14, 22]} intensity={0.7} />
 
         <Site />
         <VillaSavoye />
@@ -103,7 +111,11 @@ export default function App() {
         dims={dims}
         onDims={setDims}
         section={section}
-        onSection={setSection}
+        onSection={(v) => {
+          setSection(v)
+          // 切断面は西向きなので、ON にしたら切り口の見える視点へ
+          if (v) setView('nw')
+        }}
       />
     </div>
   )
