@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { CameraControls } from '@react-three/drei'
 import type CameraControlsImpl from 'camera-controls'
@@ -9,6 +9,42 @@ import { Site } from './villa/Site'
 import { DimensionLines } from './villa/DimensionLines'
 import { Overlay } from './ui/Overlay'
 import { VIEWS, type ViewKey } from './views'
+
+/** 空: 水平線に向かって明るくなる単純なグラデーションドーム */
+function SkyDome() {
+  const mat = useMemo(
+    () =>
+      new THREE.ShaderMaterial({
+        side: THREE.BackSide,
+        depthWrite: false,
+        fog: false,
+        uniforms: {
+          top: { value: new THREE.Color('#a9c8e0') },
+          bottom: { value: new THREE.Color('#edf2f5') },
+        },
+        vertexShader: /* glsl */ `
+          varying vec3 vP;
+          void main() {
+            vP = position;
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+          }`,
+        fragmentShader: /* glsl */ `
+          varying vec3 vP;
+          uniform vec3 top;
+          uniform vec3 bottom;
+          void main() {
+            float h = clamp(normalize(vP).y, 0.0, 1.0);
+            gl_FragColor = vec4(mix(bottom, top, pow(h, 0.75)), 1.0);
+          }`,
+      }),
+    [],
+  )
+  return (
+    <mesh material={mat} scale={420} renderOrder={-1}>
+      <sphereGeometry args={[1, 32, 16]} />
+    </mesh>
+  )
+}
 
 /** カメラプリセットへの滑らかな移動 */
 function CameraRig({ view }: { view: ViewKey }) {
@@ -79,7 +115,7 @@ export default function App() {
         resize={{ debounce: 0 }}
         camera={{ position: VIEWS.nw.p, fov: 33, near: 0.3, far: 500 }}
       >
-        <color attach="background" args={['#cfe0eb']} />
+        <SkyDome />
         <fog attach="fog" args={['#dce7ee', 75, 210]} />
         <hemisphereLight args={['#e6f0f7', '#b0b0a8', 0.85]} />
         <directionalLight

@@ -131,6 +131,16 @@ export function GroundFloor() {
       <mesh material={innerWhite} position={[0, GF_WALL_H / 2, 2.0]}>
         <boxGeometry args={[2 * R - 0.2, GF_WALL_H, 0.12]} />
       </mesh>
+
+      {/* 玄関ホールの洗面器(ラヴァボ) — 儀式的な「清め」の点景 */}
+      <group position={[1.6, 0, -4.3]}>
+        <mesh material={innerWhite} position={[0, 0.42, 0]} castShadow>
+          <cylinderGeometry args={[0.07, 0.09, 0.84, 14]} />
+        </mesh>
+        <mesh material={innerWhite} position={[0, 0.86, 0]} castShadow>
+          <cylinderGeometry args={[0.25, 0.16, 0.14, 20]} />
+        </mesh>
+      </group>
     </group>
   )
 }
