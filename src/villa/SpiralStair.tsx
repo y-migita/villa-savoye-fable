@@ -52,12 +52,9 @@ export function SpiralStair() {
       <mesh material={innerWhite} position={[0, 1.3, 0]} castShadow receiveShadow>
         <cylinderGeometry args={[1.35, 1.35, 2.6, 40, 1, true, Math.PI * 0.9, Math.PI * 0.85]} />
       </mesh>
-      {/* 屋上の階段室(曲面の立上り) */}
-      <mesh material={blueGray} position={[0, (ROOF_FL + 8.7) / 2, 0]} castShadow receiveShadow>
-        <cylinderGeometry args={[1.4, 1.4, 8.7 - ROOF_FL, 40, 1, true, Math.PI * 0.6, Math.PI * 1.55]} />
-      </mesh>
-      <mesh material={white} position={[0, 8.72, 0]} castShadow>
-        <cylinderGeometry args={[1.48, 1.48, 0.1, 40]} />
+      {/* 屋上の階段室(曲面の風除けスクリーン) */}
+      <mesh material={blueGray} position={[0, (ROOF_FL + 8.35) / 2, 0]} castShadow receiveShadow>
+        <cylinderGeometry args={[1.4, 1.4, 8.35 - ROOF_FL, 40, 1, true, Math.PI * 0.55, Math.PI * 1.35]} />
       </mesh>
     </group>
   )

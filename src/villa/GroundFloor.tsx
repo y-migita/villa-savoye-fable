@@ -70,27 +70,51 @@ export function GroundFloor() {
           <boxGeometry args={[0.07, GF_WALL_H, 0.07]} />
         </mesh>
       ))}
-      {/* 玄関扉(曲面の頂点、アプローチ正面) */}
+      {/* 玄関扉(曲面の頂点、アプローチ正面): スチール框の両開きガラス戸 */}
       <group position={[0, 0, GF_CURVE_ZC - R]}>
-        <mesh material={steel} position={[0, 1.3, 0.02]} castShadow>
-          <boxGeometry args={[2.2, 2.6, 0.1]} />
+        {[-1.08, 1.08].map((x) => (
+          <mesh key={x} material={steel} position={[x, 1.3, 0]} castShadow>
+            <boxGeometry args={[0.1, 2.6, 0.12]} />
+          </mesh>
+        ))}
+        <mesh material={steel} position={[0, 2.62, 0]} castShadow>
+          <boxGeometry args={[2.26, 0.1, 0.12]} />
         </mesh>
-        <mesh material={innerWhite} position={[0, 1.28, -0.04]}>
-          <boxGeometry args={[2.0, 2.44, 0.06]} />
+        <mesh material={steel} position={[0, 1.28, 0]}>
+          <boxGeometry args={[0.08, 2.56, 0.1]} />
+        </mesh>
+        {[-0.54, 0.54].map((x) => (
+          <mesh key={x} material={glass} position={[x, 1.42, 0]}>
+            <boxGeometry args={[1.0, 2.28, 0.05]} />
+          </mesh>
+        ))}
+        {/* 蹴込みのキックプレート */}
+        <mesh material={steel} position={[0, 0.14, 0]}>
+          <boxGeometry args={[2.16, 0.28, 0.09]} />
         </mesh>
       </group>
 
-      {/* 濃緑の側壁(東西) */}
+      {/* 濃緑の側壁(東西)+ 内側の白い仕上げ */}
       {[-R, R].map((x) => (
-        <mesh key={x} material={green} position={[x, GF_WALL_H / 2, flankZC]} castShadow receiveShadow>
-          <boxGeometry args={[0.16, GF_WALL_H, flankLen]} />
-        </mesh>
+        <group key={x}>
+          <mesh material={green} position={[x, GF_WALL_H / 2, flankZC]} castShadow receiveShadow>
+            <boxGeometry args={[0.16, GF_WALL_H, flankLen]} />
+          </mesh>
+          <mesh material={innerWhite} position={[x - Math.sign(x) * 0.09, GF_WALL_H / 2, flankZC]}>
+            <boxGeometry args={[0.02, GF_WALL_H, flankLen]} />
+          </mesh>
+        </group>
       ))}
       {/* 側壁の横長サービス窓 */}
       {[-R, R].map((x) => (
-        <mesh key={x} material={steel} position={[x, 2.15, 4.2]}>
-          <boxGeometry args={[0.2, 0.6, 4.4]} />
-        </mesh>
+        <group key={x}>
+          <mesh material={steel} position={[x, 2.1, 4.2]}>
+            <boxGeometry args={[0.18, 0.5, 4.4]} />
+          </mesh>
+          <mesh material={glass} position={[x, 2.1, 4.2]}>
+            <boxGeometry args={[0.2, 0.38, 4.28]} />
+          </mesh>
+        </group>
       ))}
 
       {/* 南壁(車庫)+車庫扉 */}

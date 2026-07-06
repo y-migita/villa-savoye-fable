@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
 import { Canvas, useThree } from '@react-three/fiber'
-import { CameraControls, Sky } from '@react-three/drei'
+import { CameraControls } from '@react-three/drei'
 import type CameraControlsImpl from 'camera-controls'
 import * as THREE from 'three'
 import { VillaSavoye } from './villa/VillaSavoye'
+import { buildingMaterials } from './villa/materials'
 import { Site } from './villa/Site'
 import { DimensionLines } from './villa/DimensionLines'
 import { Overlay } from './ui/Overlay'
@@ -28,15 +29,18 @@ function CameraRig({ view }: { view: ViewKey }) {
   )
 }
 
-/** 断面表示(スロープを通る東西方向の切断) */
+/** 断面表示(スロープを通る南北方向の切断)— 建物のマテリアルのみに適用 */
 function SectionPlane({ enabled }: { enabled: boolean }) {
   const gl = useThree((s) => s.gl)
   useEffect(() => {
-    gl.clippingPlanes = enabled
-      ? [new THREE.Plane(new THREE.Vector3(1, 0, 0), 2.15)]
-      : []
+    gl.localClippingEnabled = true
+    const plane = new THREE.Plane(new THREE.Vector3(1, 0, 0), 2.15)
+    for (const m of buildingMaterials) {
+      m.clippingPlanes = enabled ? [plane] : null
+      m.needsUpdate = true
+    }
     return () => {
-      gl.clippingPlanes = []
+      for (const m of buildingMaterials) m.clippingPlanes = null
     }
   }, [gl, enabled])
   return null
@@ -47,22 +51,29 @@ export default function App() {
   const [dims, setDims] = useState(false)
   const [section, setSection] = useState(false)
 
+  // 環境によって初回マウント時に ResizeObserver が発火せず
+  // Canvas の子がマウントされないことがあるため、明示的に再計測させる
+  useEffect(() => {
+    const kick = () => window.dispatchEvent(new Event('resize'))
+    const t1 = setTimeout(kick, 50)
+    const t2 = setTimeout(kick, 400)
+    return () => {
+      clearTimeout(t1)
+      clearTimeout(t2)
+    }
+  }, [])
+
   return (
-    <div className="relative h-full w-full">
+    // CSS 読込みと初期計測の競合を避けるため、インラインでサイズを確定させる
+    <div style={{ position: 'fixed', inset: 0 }}>
       <Canvas
         shadows
+        resize={{ debounce: 0 }}
         camera={{ position: VIEWS.nw.p, fov: 33, near: 0.3, far: 500 }}
       >
-        <Sky
-          distance={450000}
-          sunPosition={[-6, 5.5, -5.5]}
-          turbidity={4.5}
-          rayleigh={1.1}
-          mieCoefficient={0.004}
-          mieDirectionalG={0.75}
-        />
+        <color attach="background" args={['#cfe0eb']} />
         <fog attach="fog" args={['#dce7ee', 75, 210]} />
-        <hemisphereLight args={['#dff0fa', '#95a17b', 0.6]} />
+        <hemisphereLight args={['#e6f0f7', '#a8aa9e', 0.85]} />
         <directionalLight
           position={[-26, 36, -26]}
           intensity={2.4}
